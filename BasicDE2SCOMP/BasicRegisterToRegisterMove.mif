@@ -1,0 +1,21 @@
+-- Altera Memory Initialization File (MIF)
+
+DEPTH = 1024;
+WIDTH = 16;
+
+ADDRESS_RADIX = HEX;
+DATA_RADIX = BIN;
+
+CONTENT
+  BEGIN
+    [000..3FF] : 0000000000000000;  -- Default to NOP
+
+          000 : 0000100000000111; -- LOAD ONE into AC 
+          001 : 1100000000100000; -- movr r1, r0
+          002 : 1100000001000001; -- movr r2, r1
+          003 : 0000100000000110; -- load zero
+          004 : 1100000000000010; -- movr r0, r2
+          005 : 0010100000000100; -- jump 2
+          006 : 0000000000000000; -- ZERO: DW &H0000;
+          007 : 0000111100001111; -- ONE: DW &H0001
+  END;

@@ -2,6 +2,6 @@
 <LOG_ROOT>
 	<PROJECT NAME="scomp">
 		<CBX_INST_ENTRY INSTANCE_NAME="|scomp|LPM_CLSHIFT:SHIFTER" CBX_FILE_NAME="lpm_clshift_fuc.tdf"/>
-		<CBX_INST_ENTRY INSTANCE_NAME="|scomp|altsyncram:MEMORY" CBX_FILE_NAME="altsyncram_scu3.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|scomp|altsyncram:MEMORY" CBX_FILE_NAME="altsyncram_qav3.tdf"/>
 	</PROJECT>
 </LOG_ROOT>

@@ -58,7 +58,6 @@ ARCHITECTURE a OF SCOMP IS
 		EX_MOVR,
 		EX_ADDR,
 		EX_SUBR,
-		EX_ADDIR,
 
 		EX_ANDR,
 		EX_ORR,
@@ -67,10 +66,16 @@ ARCHITECTURE a OF SCOMP IS
 		EX_LT,
 		EX_GT
 	);
-  
-
+	
+	
 	TYPE STACK_TYPE IS ARRAY (0 TO 9) OF STD_LOGIC_VECTOR(10 DOWNTO 0);
-
+	
+	type HSREGISTER_FILE is array (0 to 31) of std_logic_vector(15 downto 0);
+	
+	
+	
+	SIGNAL regFile 		: HSREGISTER_FILE;
+	
 	SIGNAL STATE        : STATE_TYPE;
 	SIGNAL PC_STACK     : STACK_TYPE;
 	SIGNAL IO_IN        : STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -92,9 +97,7 @@ ARCHITECTURE a OF SCOMP IS
 	SIGNAL IN_HOLD      : STD_LOGIC;
 	
 	
-	type register_file is array(0 to 31) of std_logic_vector(15 downto 0);
 	
-	signal registers 	: register_file;
 	
 
 
@@ -113,7 +116,7 @@ ARCHITECTURE a OF SCOMP IS
 		wrcontrol_aclr_a => "NONE",
 		address_aclr_a   => "NONE",
 		outdata_aclr_a   => "NONE",
-		init_file        => "SimpleRobotProgram.mif",
+		init_file        => "BasicRegisterToRegister.mif",
 		lpm_hint         => "ENABLE_RUNTIME_MOD=NO",
 		lpm_type         => "altsyncram"
 	)
@@ -204,9 +207,7 @@ ARCHITECTURE a OF SCOMP IS
 					IO_WRITE_INT 	<= '0';       -- Lower IO_WRITE after an OUT
 					
 					
-					-- Write to the register variables.
-					regFileDest 	:= ieee.numeric_std.to_integer(ieee.numeric_std.unsigned(IR(9 downto 5)));
-					regFileSource 	:= ieee.numeric_std.to_integer(ieee.numeric_std.unsigned(IR(4 downto 0)));
+					
 					
 					
 					
@@ -239,7 +240,11 @@ ARCHITECTURE a OF SCOMP IS
 	
 	
 				WHEN DECODE =>
-				
+					
+					-- Write to the register variables.
+					regFileDest 	:= ieee.numeric_std.to_integer(ieee.numeric_std.unsigned(IR(9 downto 5)));
+					regFileSource 	:= ieee.numeric_std.to_integer(ieee.numeric_std.unsigned(IR(4 downto 0)));
+					
 					CASE IR(15 downto 11) IS
 					
 						WHEN "00000" => 	STATE <= FETCH;
@@ -284,8 +289,8 @@ ARCHITECTURE a OF SCOMP IS
 						-- Harrison
 
 						WHEN "11000" => 	STATE <= EX_MOVR;
-						WHEN "11001" => 	STATE <= EX_SUBR;
-						WHEN "11010" =>		STATE <= EX_ADDIR;
+						WHEN "11001" => 	STATE <= EX_ADDR;
+						WHEN "11010" =>		STATE <= EX_SUBR;
 						WHEN "11011" => 	STATE <= EX_ANDR;
 						WHEN "11100" => 	STATE <= EX_ORR;
 						WHEN "11101" =>		STATE <= EX_CMP;
@@ -426,26 +431,57 @@ ARCHITECTURE a OF SCOMP IS
 					
 					if( regFileDest = 0 ) then
 						
-						AC <= registers(regFileSource);
+						-- If regFileSource is 0, then we dont want to overwrite AC with register_file(0)
+						-- We just skip.
+						if( regFileSource /= 0 ) then
+						
+							AC <= regFile(regFileSource);
+						
+						end if;
+						
+						STATE <= FETCH;
 						
 					else 
+						if( regFileSource = 0) then
+							
+							regFile(regFileDest) <= AC;
+							
+						else
 					
-						registers(regFileDest) <= registers(regFileSource);
+							regFile(regFileDest) <= regFile(regFileSource);
 						
+						end if;
 					end if;
 
 					STATE <= FETCH;
+				
+				
 				
 				
 				WHEN EX_ADDR =>
 
 					if( regFileDest = 0 ) then
 						
-						AC <= AC + registers(regFileSource);
+						if(regFileSource = 0) then
+							
+							-- Effectively doing AC*2.
+							AC <= AC + AC;
+							
+						else
+							
+							AC <= AC + regFile(regFileSource);
+							
+						end if;
 						
 					else 
+						
+						if(regFileSource = 0) then
 					
-						AC <= registers(regFileDest) + registers(regFileSource);
+							AC <= regFile(regFileDest) + AC;
+						else
+							
+							AC <= regFile(regFileDest) + regFile(regFileSource);
+						end if;
 						
 					end if;
 
@@ -458,144 +494,258 @@ ARCHITECTURE a OF SCOMP IS
 					
 					if( regFileDest = 0 ) then
 						
-						AC <= AC - registers(regFileSource);
+						if(regFileSource = 0) then
+							
+							-- Anything minus itself is just zero.
+							AC <= x"0000";
+							
+						else
+							
+							AC <= AC - regFile(regFileSource);
+						end if;
 						
 					else 
-					
-						AC <= registers(regFileDest) - registers(regFileSource);
+						
+						if(regFileSource = 0) then
+							
+							AC <= regFile(regFileDest) - AC;
+						else
+						
+							AC <= regFile(regFileDest) - regFile(regFileSource);
+						end if;
+						
 						
 					end if;
 					
 					STATE 	<= FETCH;
 
 				
-				-- ADDIR
-				-- Add Immediate Register 
-				-- 
-				-- Treat the bits in IR(4 downto 0) as an immediate value.
-				--
-
-				WHEN EX_ADDIR =>
-					
-					AC <= registers(regFileDest) + (IR(4) & IR(4) & IR(4) & IR(4) & IR(4) & IR(4) & IR(4) & IR(4) & IR(4) & IR(4) & IR(4) & IR(4 downto 0));
-
-					STATE <= FETCH;
+	
 				
 				
 				WHEN EX_ANDR =>
 
 					if( regFileDest = 0 ) then
 						
-						AC <= AC and registers(regFileSource);
+						if(regFileSource /= 0) then
+							
+							AC <= AC and regFile(regFileSource);
+						end if;
+						
+						-- AC <= AC and AC is just AC... IE do nothing.
 						
 					else 
-					
-						AC <= registers(regFileDest) and registers(regFileSource);
+						
+						if(regFileSource /= 0) then
+							
+							AC <= regFile(regFileDest) and regFile(regFileSource);
+						else
+							
+							AC <= regFile(regFileDest) and AC;
+						end if;
 						
 					end if;
 
 					STATE <= FETCH;
+					
+					
 
 				WHEN EX_ORR =>
 
 					if( regFileDest = 0 ) then
 						
-						AC <= AC or registers(regFileSource);
+						if( regFileSource /= 0) then
+						
+							AC <= AC or regFile(regFileSource);
+						end if;
+						
+						-- AC <= AC or AC is just AC.
 						
 					else 
+						
+						if( regFileSource = 0) then
+							
+							AC <= regFile(regFileDest) or AC;
+						else
 					
-						AC <= registers(regFileDest) or registers(regFileSource);
+							AC <= regFile(regFileDest) or regFile(regFileSource);
+						end if;
 						
 					end if;
 
 					STATE <= FETCH;
 
-
+	
+	
+	
+	
 				WHEN EX_CMP =>
 
 					if( regFileDest = 0 ) then
 						
-						if(AC = registers(regFileSource)) then
-						
-							AC <= "0000000000000001";
+						if(regFileSource = 0) then
+							
+							AC <= x"0000";
 						
 						else
-						
-							AC <= "0000000000000000";
+							
+							if(AC = regFile(regFileSource)) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
 						
 						end if;
 						
 					else 
-					
-						if(registers(regFileDest) = registers(regFileSource)) then
 						
-							AC <= "0000000000000001";
-						
+						if(regFileSource = 0) then
+							
+							if(regFile(regFileDest) = AC) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
+							
 						else
-						
-							AC <= "0000000000000000";
+					
+							if(regFile(regFileDest) = regFile(regFileSource)) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
 						
 						end if;
 						
 					end if;
 
 					STATE <= FETCH;
+
+
 
 
 				WHEN EX_LT =>
 
 					if( regFileDest = 0 ) then
 						
-						if(ieee.numeric_std.signed(AC) < ieee.numeric_std.signed(registers(regFileSource))) then
-						
-							AC <= "0000000000000001";
-						
+						if(regFileSource = 0) then
+							
+							-- Something can never be less than itself.
+							AC <= x"0000";
+							
 						else
 						
-							AC <= "0000000000000000";
+							if(ieee.numeric_std.signed(AC) < ieee.numeric_std.signed(regFile(regFileSource))) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
 						
 						end if;
 						
 					else 
-					
-						if(ieee.numeric_std.signed(registers(regFileDest)) < ieee.numeric_std.signed(registers(regFileSource))) then
 						
-							AC <= "0000000000000001";
+						if(regFileSource = 0) then
+						
+							if(ieee.numeric_std.signed(regFile(regFileDest)) < ieee.numeric_std.signed(AC)) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
 						
 						else
 						
-							AC <= "0000000000000000";
+							if(ieee.numeric_std.signed(regFile(regFileDest)) < ieee.numeric_std.signed(regFile(regFileSource))) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
 						
 						end if;
 						
 					end if;
 
 					STATE <= FETCH;
-
 			
+			
+			
+			
+				-- I dont need this!!
+				-- We can use a LT instruction and then do JZERO.
+				
+				
 				WHEN EX_GT =>
 					
 					if( regFileDest = 0 ) then
 						
-						if(ieee.numeric_std.signed(AC) > ieee.numeric_std.signed(registers(regFileSource))) then
+						if( regFileSource = 0) then
 						
-							AC <= "0000000000000001";
+							-- Something can never be greater than itself.
+							AC <= x"0000";
 						
 						else
 						
-							AC <= "0000000000000000";
+							if(ieee.numeric_std.signed(AC) > ieee.numeric_std.signed(regFile(regFileSource))) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
 						
 						end if;
 						
 					else 
-					
-						if(ieee.numeric_std.signed(registers(regFileDest)) > ieee.numeric_std.signed(registers(regFileSource))) then
 						
-							AC <= "0000000000000001";
-						
+						if(regFileSource = 0) then
+							
+							if(ieee.numeric_std.signed(regFile(regFileDest)) > ieee.numeric_std.signed(AC)) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
+							
 						else
-						
-							AC <= "0000000000000000";
+					
+							if(ieee.numeric_std.signed(regFile(regFileDest)) > ieee.numeric_std.signed(regFile(regFileSource))) then
+							
+								AC <= "0000000000000001";
+							
+							else
+							
+								AC <= "0000000000000000";
+							
+							end if;
 						
 						end if;
 						
@@ -609,7 +759,9 @@ ARCHITECTURE a OF SCOMP IS
 					STATE <= FETCH;          -- If an invalid state is reached, return to FETCH
 					
 			END CASE;
+			
 			INT_REQ_SYNC <= INT_REQ;  -- register interrupt requests to SCOMP's clock.
+			
 		END IF;
       END PROCESS;
       
