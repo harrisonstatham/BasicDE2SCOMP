@@ -50,19 +50,7 @@ ARCHITECTURE a OF SCOMP IS
 		EX_OUT,
 		EX_OUT2,
 		EX_LOADI,
-		EX_RETI,
-
-		EX_MOVR,
-		EX_ADDR,
-		EX_SUBR,
-		EX_ADDIR,
-
-		EX_ANDR,
-		EX_ORR,
-
-		EX_CMP,
-		EX_LT,
-		EX_GT
+		EX_RETI
 	);
   
 
@@ -261,38 +249,6 @@ ARCHITECTURE a OF SCOMP IS
 							STATE <= EX_LOADI;
 
 
-						-- 
-						-- Register-to-Register Operations
-						--
-						-- Harrison
-
-						WHEN "11000" =>
-							STATE <= EX_MOVR;
-
-						WHEN "11001" =>
-							STATE <= EX_SUBR;
-
-						WHEN "11010" =>
-							STATE <= EX_ADDIR;
-
-						WHEN "11011" =>
-							STATE <= EX_ANDR;
-
-						WHEN "11100" => 
-							STATE <= EX_ORR;
-
-
-						-- Comparisons
-						--
-
-						WHEN "11101" =>
-							STATE <= EX_CMP;
-
-						WHEN "11110" =>
-							STATE <= EX_LT;
-
-						WHEN "11111" =>
-							STATE <= EX_GT;
 
 
 						WHEN OTHERS =>
@@ -414,77 +370,6 @@ ARCHITECTURE a OF SCOMP IS
 					GIE   <= '1';      -- re-enable interrupts
 					PC    <= PC_SAVED; -- restore saved registers
 					AC    <= AC_SAVED;
-					STATE <= FETCH;
-
-
-				--
-				-- Register-to-Register Operations
-				--
-
-				WHEN EX_MOVR =>
-
-					
-
-
-					STATE <= FETCH;
-
-				WHEN EX_ADDR =>
-
-					
-
-					STATE <= FETCH;
-
-
-
-
-				WHEN EX_SUBR =>
-
-					
-					STATE 	<= FETCH;
-
-				
-				-- ADDIR
-				-- Add Immediate Register 
-				-- 
-				-- Treat the bits in IR(4 downto 0) as an immediate value.
-				--
-
-				WHEN EX_ADDIR =>
-
-					
-
-					STATE <= FETCH;
-
-				WHEN EX_ANDR =>
-
-					
-
-					STATE <= FETCH;
-
-				WHEN EX_ORR =>
-
-					
-
-					STATE <= FETCH;
-
-
-				WHEN EX_CMP =>
-
-					
-
-					STATE <= FETCH;
-
-
-				WHEN EX_LT =>
-
-					
-
-					STATE <= FETCH;
-
-
-				WHEN EX_GT =>
-
-					
 					STATE <= FETCH;
 
 

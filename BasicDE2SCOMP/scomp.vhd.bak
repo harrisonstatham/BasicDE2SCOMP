@@ -439,7 +439,7 @@ ARCHITECTURE a OF SCOMP IS
 				
 				WHEN EX_ADDR =>
 
-					if( regFileDest = '0' ) then
+					if( regFileDest = 0 ) then
 						
 						AC <= AC + registers(regFileSource);
 						
@@ -456,7 +456,7 @@ ARCHITECTURE a OF SCOMP IS
 
 				WHEN EX_SUBR =>
 					
-					if( regFileDest = '0' ) then
+					if( regFileDest = 0 ) then
 						
 						AC <= AC - registers(regFileSource);
 						
@@ -484,7 +484,7 @@ ARCHITECTURE a OF SCOMP IS
 				
 				WHEN EX_ANDR =>
 
-					if( regFileDest = '0' ) then
+					if( regFileDest = 0 ) then
 						
 						AC <= AC and registers(regFileSource);
 						
@@ -498,7 +498,7 @@ ARCHITECTURE a OF SCOMP IS
 
 				WHEN EX_ORR =>
 
-					if( regFileDest = '0' ) then
+					if( regFileDest = 0 ) then
 						
 						AC <= AC or registers(regFileSource);
 						
@@ -513,7 +513,7 @@ ARCHITECTURE a OF SCOMP IS
 
 				WHEN EX_CMP =>
 
-					if( regFileDest = '0' ) then
+					if( regFileDest = 0 ) then
 						
 						if(AC = registers(regFileSource)) then
 						
@@ -544,7 +544,7 @@ ARCHITECTURE a OF SCOMP IS
 
 				WHEN EX_LT =>
 
-					if( regFileDest = '0' ) then
+					if( regFileDest = 0 ) then
 						
 						if(ieee.numeric_std.signed(AC) < ieee.numeric_std.signed(registers(regFileSource))) then
 						
@@ -575,7 +575,7 @@ ARCHITECTURE a OF SCOMP IS
 			
 				WHEN EX_GT =>
 					
-					if( regFileDest = '0' ) then
+					if( regFileDest = 0 ) then
 						
 						if(ieee.numeric_std.signed(AC) > ieee.numeric_std.signed(registers(regFileSource))) then
 						
@@ -603,7 +603,7 @@ ARCHITECTURE a OF SCOMP IS
 					
 					STATE <= FETCH;
 
-
+					
 
 				WHEN OTHERS =>
 					STATE <= FETCH;          -- If an invalid state is reached, return to FETCH

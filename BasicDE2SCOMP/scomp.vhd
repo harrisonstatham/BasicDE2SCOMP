@@ -603,13 +603,15 @@ ARCHITECTURE a OF SCOMP IS
 					
 					STATE <= FETCH;
 
-
+					
 
 				WHEN OTHERS =>
 					STATE <= FETCH;          -- If an invalid state is reached, return to FETCH
 					
 			END CASE;
+			
 			INT_REQ_SYNC <= INT_REQ;  -- register interrupt requests to SCOMP's clock.
+			
 		END IF;
       END PROCESS;
       
