@@ -116,7 +116,7 @@ ARCHITECTURE a OF SCOMP IS
 		wrcontrol_aclr_a => "NONE",
 		address_aclr_a   => "NONE",
 		outdata_aclr_a   => "NONE",
-		init_file        => "BasicRegisterToRegister.mif",
+		init_file        => "AddRegisterToRegister.mif",
 		lpm_hint         => "ENABLE_RUNTIME_MOD=NO",
 		lpm_type         => "altsyncram"
 	)
@@ -438,8 +438,6 @@ ARCHITECTURE a OF SCOMP IS
 							AC <= regFile(regFileSource);
 						
 						end if;
-						
-						STATE <= FETCH;
 						
 					else 
 						if( regFileSource = 0) then

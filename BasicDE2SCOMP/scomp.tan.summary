@@ -36,7 +36,7 @@ Type           : Clock Setup: 'CLOCK'
 Slack          : N/A
 Required Time  : None
 Actual Time    : 58.02 MHz ( period = 17.234 ns )
-From           : altsyncram:MEMORY|altsyncram_qav3:auto_generated|ram_block1a0~porta_address_reg10
+From           : altsyncram:MEMORY|altsyncram_d7v3:auto_generated|ram_block1a0~porta_address_reg10
 To             : AC[8]
 From Clock     : CLOCK
 To Clock       : CLOCK

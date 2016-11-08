@@ -1,5 +1,5 @@
 MIF/HEX Update report for scomp
-Tue Nov 08 15:58:01 2016
+Tue Nov 08 16:41:55 2016
 Quartus II Version 9.1 Build 350 03/24/2010 Service Pack 2 SJ Web Edition
 
 
@@ -35,7 +35,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------+
 ; MIF/HEX Update Summary                                        ;
 +-----------------------+---------------------------------------+
-; MIF/HEX Update Status ; Successful - Tue Nov 08 15:58:01 2016 ;
+; MIF/HEX Update Status ; Successful - Tue Nov 08 16:41:55 2016 ;
 ; Revision Name         ; scomp                                 ;
 ; Top-level Entity Name ; SCOMP                                 ;
 ; Family                ; Cyclone II                            ;
@@ -43,13 +43,13 @@ applicable agreement for further details.
 +-----------------------+---------------------------------------+
 
 
-+-----------------------------------------------------------------------------------+
-; MIF/HEX Update Processed Files                                                    ;
-+-----------------------------------------------------------------------------------+
-; File Name                                                                         ;
-+-----------------------------------------------------------------------------------+
-; C:/Users/HarrisonStatham/Documents/GitHub/BasicDE2SCOMP/BasicDE2SCOMP/example.mif ;
-+-----------------------------------------------------------------------------------+
++-------------------------------------------------------------------------------------------------------+
+; MIF/HEX Update Processed Files                                                                        ;
++-------------------------------------------------------------------------------------------------------+
+; File Name                                                                                             ;
++-------------------------------------------------------------------------------------------------------+
+; C:/Users/HarrisonStatham/Documents/GitHub/BasicDE2SCOMP/BasicDE2SCOMP/basicregistertoregistermove.mif ;
++-------------------------------------------------------------------------------------------------------+
 
 
 +-------------------------+
@@ -58,20 +58,24 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II MIF/HEX Update
     Info: Version 9.1 Build 350 03/24/2010 Service Pack 2 SJ Web Edition
-    Info: Processing started: Tue Nov 08 15:58:01 2016
+    Info: Processing started: Tue Nov 08 16:41:54 2016
 Info: Command: quartus_cdb scomp -c scomp --update_mif
-Warning: 4 out of 1024 addresses are reinitialized. The latest initialized data will replace the existing data. There are 4 warnings found, and 4 warnings are reported.
+Warning: 8 out of 1024 addresses are reinitialized. The latest initialized data will replace the existing data. There are 8 warnings found, and 8 warnings are reported.
     Warning: Memory Initialization File address 0 is reinitialized
     Warning: Memory Initialization File address 1 is reinitialized
     Warning: Memory Initialization File address 2 is reinitialized
     Warning: Memory Initialization File address 3 is reinitialized
-Critical Warning: Memory depth (2048) in the design file differs from memory depth (1024) in the Memory Initialization File "example.mif" -- setting initial value for remaining addresses to 0
+    Warning: Memory Initialization File address 4 is reinitialized
+    Warning: Memory Initialization File address 5 is reinitialized
+    Warning: Memory Initialization File address 6 is reinitialized
+    Warning: Memory Initialization File address 7 is reinitialized
+Critical Warning: Memory depth (2048) in the design file differs from memory depth (1024) in the Memory Initialization File "basicregistertoregistermove.mif" -- setting initial value for remaining addresses to 0
 Info: Processed the following Memory Initialization File(s)
-    Info: Processed Memory Initialization File C:/Users/HarrisonStatham/Documents/GitHub/BasicDE2SCOMP/BasicDE2SCOMP/example.mif
-Info: Quartus II MIF/HEX Update was successful. 0 errors, 6 warnings
-    Info: Peak virtual memory: 232 megabytes
-    Info: Processing ended: Tue Nov 08 15:58:01 2016
-    Info: Elapsed time: 00:00:00
+    Info: Processed Memory Initialization File C:/Users/HarrisonStatham/Documents/GitHub/BasicDE2SCOMP/BasicDE2SCOMP/basicregistertoregistermove.mif
+Info: Quartus II MIF/HEX Update was successful. 0 errors, 10 warnings
+    Info: Peak virtual memory: 234 megabytes
+    Info: Processing ended: Tue Nov 08 16:41:55 2016
+    Info: Elapsed time: 00:00:01
     Info: Total CPU time (on all processors): 00:00:01
 
 
