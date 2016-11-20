@@ -1,27 +1,40 @@
-LIBRARY IEEE;
-LIBRARY ALTERA_MF;
-LIBRARY LPM;
+--
+-- FGPA Simple Computer
+--
+-- A simple computer designed for an FPGA.
+--
+-- NOTE: At the time of writing this, most of the code was created by:
+-- 		1. Kevin Johnson (Georgia Tech)
+-- 		2. Other authors here.
+--
+-- Harrison Statham
+--
 
-USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-USE IEEE.STD_LOGIC_UNSIGNED.ALL;
-USE ALTERA_MF.ALTERA_MF_COMPONENTS.ALL;
-USE LPM.LPM_COMPONENTS.ALL;
+library ieee;
+library altera_mf;
+library lpm;
 
-ENTITY SCOMP IS
-  PORT(
-    CLOCK    : IN    STD_LOGIC;
-	RESETN   : IN    STD_LOGIC;
-	PCINT    : IN    STD_LOGIC_VECTOR( 3 DOWNTO 0);
-	IO_WRITE : OUT   STD_LOGIC;
-	IO_CYCLE : OUT   STD_LOGIC;
-	IO_ADDR  : OUT   STD_LOGIC_VECTOR( 7 DOWNTO 0);
-	IO_DATA  : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0)
-  );
-END SCOMP;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+use altera_mf.altera_mf_components.all;
+use lpm.lpm_components.all;
 
+entity FPGASimpleComputer is
 
-ARCHITECTURE a OF SCOMP IS
+	port(
+		CLOCK 	: in 	std_logic;
+		RESETN 	: in 	std_logic;
+		PCINT 	: in 	std_logic_vector(3 downto 0);
+		IO_WRITE: in 	std_logic;
+		IO_CYCLE: in 	std_logic;
+		IO_ADDR : in 	std_logic_vector(7 downto 0);
+		IO_DATA : in 	std_logic_vector(15 downto 0)
+	);
+
+end FPGASimpleComputer;
+
+architecture Arch of FPGASimpleComputer is
   
 	TYPE STATE_TYPE IS (
 
@@ -463,7 +476,7 @@ ARCHITECTURE a OF SCOMP IS
 		END IF;
       END PROCESS;
       
-      -- This process monitors the external interrupt pins, setting
+    -- This process monitors the external interrupt pins, setting
 	-- some flags if a rising edge is detected, and clearing flags
 	-- once the interrupt is acknowledged.
 	PROCESS(RESETN, PCINT, INT_ACK, IIE)
