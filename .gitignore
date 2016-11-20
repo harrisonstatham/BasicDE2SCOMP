@@ -1,9 +1,16 @@
 
 *.rpt
+
 *.done
+
 *.summary
+
 *.pin
+
 *.qpf
+
 *.qsf
+
 *.tdf
+
 *.qdf
