@@ -1,1 +1,14 @@
 
+*.asm.rpt
+
+*.done*
+*.fit*
+*.flow*
+*.map*
+*.pin*
+*.pof*
+*.qpf*
+*.qsf*
+*.sof*
+*.tan*
+*.qdf*
