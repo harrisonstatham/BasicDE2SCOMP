@@ -55,14 +55,12 @@ ARCHITECTURE a OF SCOMP IS
 		EX_MOVR,
 		EX_ADDR,
 		EX_SUBR,
-		EX_ADDIR,
-
+		
+		-- These will become one single instruction.
 		EX_ANDR,
 		EX_ORR,
 
 		EX_CMP,
-		EX_LT,
-		EX_GT
 	);
   
 
@@ -207,92 +205,60 @@ ARCHITECTURE a OF SCOMP IS
 					END IF;
 
 				WHEN DECODE =>
-					CASE IR(15 downto 11) IS
-						WHEN "00000" =>       -- No Operation (NOP)
-							STATE <= FETCH;
-						WHEN "00001" =>       -- LOAD
-							STATE <= EX_LOAD;
-						WHEN "00010" =>       -- STORE
-							STATE <= EX_STORE;
-						WHEN "00011" =>       -- ADD
-							STATE <= EX_ADD;
-						WHEN "00100" =>       -- SUB
-							STATE <= EX_SUB;
-						WHEN "00101" =>       -- JUMP
-							STATE <= EX_JUMP;
-						WHEN "00110" =>       -- JNEG
-							STATE <= EX_JNEG;
-						WHEN "00111" =>       -- JPOS
-							STATE <= EX_JPOS;
-						WHEN "01000" =>       -- JZERO
-							STATE <= EX_JZERO;
-						WHEN "01001" =>       -- AND
-							STATE <= EX_AND;
-						WHEN "01010" =>       -- OR
-							STATE <= EX_OR;
-						WHEN "01011" =>       -- XOR
-							STATE <= EX_XOR;
-						WHEN "01100" =>       -- SHIFT
-							STATE <= EX_SHIFT;
-						WHEN "01101" =>       -- ADDI
-							STATE <= EX_ADDI;
-						WHEN "01110" =>       -- ILOAD
-							STATE <= EX_ILOAD;
-						WHEN "01111" =>       -- ISTORE
-							STATE <= EX_ISTORE;
-						WHEN "10000" =>       -- CALL
-							STATE <= EX_CALL;
-						WHEN "10001" =>       -- RETURN
-							STATE <= EX_RETURN;
-						WHEN "10010" =>       -- IN
-							STATE <= EX_IN;
-						WHEN "10011" =>       -- OUT
+					CASE IR(15 downto 11) IS -- No Operation (NOP)
+						WHEN "00000" =>       STATE <= FETCH;
+						WHEN "00001" =>       STATE <= EX_LOAD;
+						WHEN "00010" =>       STATE <= EX_STORE;
+						WHEN "00011" =>       STATE <= EX_ADD;
+						WHEN "00100" =>       STATE <= EX_SUB;
+						WHEN "00101" =>       STATE <= EX_JUMP;
+						WHEN "00110" =>       STATE <= EX_JNEG;
+						WHEN "00111" =>       STATE <= EX_JPOS;
+						WHEN "01000" =>       STATE <= EX_JZERO;
+						WHEN "01001" =>       STATE <= EX_AND;
+						WHEN "01010" =>       STATE <= EX_OR;
+						WHEN "01011" =>       STATE <= EX_XOR;
+						WHEN "01100" =>       STATE <= EX_SHIFT;
+						WHEN "01101" =>       STATE <= EX_ADDI;
+						WHEN "01110" =>       STATE <= EX_ILOAD;
+						WHEN "01111" =>       STATE <= EX_ISTORE;
+						WHEN "10000" =>       STATE <= EX_CALL;
+						WHEN "10001" =>       STATE <= EX_RETURN;
+						WHEN "10010" =>       STATE <= EX_IN;
+						
+						WHEN "10011" =>      
 							STATE <= EX_OUT;
 							IO_WRITE_INT <= '1'; -- raise IO_WRITE
+						
 						WHEN "10100" =>       -- CLI
 							IIE <= IIE AND NOT(IR(3 DOWNTO 0));  -- disable indicated interrupts
 							STATE <= FETCH;
+						
 						WHEN "10101" =>       -- SEI
 							IIE <= IIE OR IR(3 DOWNTO 0);  -- enable indicated interrupts
 							STATE <= FETCH;
-						WHEN "10110" =>       -- RETI
-							STATE <= EX_RETI;
-						WHEN "10111" =>       -- LOADI
-							STATE <= EX_LOADI;
+
+						WHEN "10110" =>       STATE <= EX_RETI;
+						WHEN "10111" =>       STATE <= EX_LOADI;
 
 
 						-- 
 						-- Register-to-Register Operations
 						--
 						-- Harrison
-
-						WHEN "11000" =>
-							STATE <= EX_MOVR;
-
-						WHEN "11001" =>
-							STATE <= EX_SUBR;
-
-						WHEN "11010" =>
-							STATE <= EX_ADDIR;
-
-						WHEN "11011" =>
-							STATE <= EX_ANDR;
-
-						WHEN "11100" => 
-							STATE <= EX_ORR;
-
-
-						-- Comparisons
 						--
 
-						WHEN "11101" =>
-							STATE <= EX_CMP;
-
-						WHEN "11110" =>
-							STATE <= EX_LT;
-
-						WHEN "11111" =>
-							STATE <= EX_GT;
+						WHEN "11000" => 	STATE <= EX_MOVR;
+						WHEN "11001" => 	STATE <= EX_ADDR_ADDIR;
+						WHEN "11001" => 	STATE <= EX_SUBR;
+						WHEN "11010" =>		STATE <= EX_LOGICAL_REG;
+						WHEN "11011" => 	STATE <= EX_CMP;
+						WHEN "11100" => 	STATE <= EX_STACK;
+						
+						-- Unused operations
+						WHEN "11101" => 	STATE <= ;
+						WHEN "11110" => 	STATE <= ;
+						WHEN "11111" => 	STATE <= ;
 
 
 						WHEN OTHERS =>
