@@ -1,6 +1,7 @@
 
 *.asm.rpt
-
+/db
+/incremental_db
 *.done
 *.fit
 *.flow
