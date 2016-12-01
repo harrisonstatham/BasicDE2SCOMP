@@ -37,6 +37,13 @@ applicable agreement for further details.
 		(text "reset" (rect 21 43 45 55)(font "Arial" ))
 		(line (pt 0 48)(pt 16 48)(line_width 1))
 	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "program" (rect 0 0 40 12)(font "Arial" ))
+		(text "program" (rect 21 59 61 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 1))
+	)
 	(drawing
 		(rectangle (rect 16 16 80 80)(line_width 1))
 	)
