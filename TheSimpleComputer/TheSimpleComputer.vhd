@@ -25,8 +25,7 @@ entity TheSimpleComputer is
 	
 	port(
 		clock 	: in 	std_logic;
-		reset 	: in 	std_logic;
-		program : in 	std_logic
+		reset 	: in 	std_logic
 	);
 	
 end TheSimpleComputer;
@@ -70,11 +69,17 @@ architecture arch of TheSimpleComputer is
 	--
 	
 	signal IR 		: std_logic_vector(7 downto 0);
-	signal MAR 		: std_logic_vector(7 downto 0);
+	signal MAR 		: std_logic_vector(4 downto 0);
 	signal MDR 		: std_logic_vector(7 downto 0);
-	signal PC 		: std_logic_vector(7 downto 0);
+	signal PC 		: std_logic_vector(4 downto 0);
 	signal AC 		: std_logic_vector(7 downto 0);
 	signal AC_SHIFT : std_logic_vector(7 downto 0);
+	signal MW 		: std_logic;
+	
+	
+	
+	
+	
 	
 	
 	begin
@@ -92,22 +97,25 @@ architecture arch of TheSimpleComputer is
 		generic map(
 		
 			lpm_width 		=>	8,
-			lpm_widthdist 	=> 	4,
+			lpm_widthdist 	=> 	3,
 			lpm_shifttype 	=> 	"ARITHMETIC"
 		)
 		port map (
 			
 			data 			=> 	AC,
-			distance 		=> 	IR(3 downto 0),
-			direction 		=> 	IR(4),
-			result 			=> 	AC_SHIFTED
+			distance 		=> 	IR(2 downto 0),
+			direction 		=> 	IR(3),
+			result 			=> 	AC_SHIFT
 		);
 		
 		
+		with state select MAR <=
+			PC 				when fetch,
+			IR(4 downto 0) 	when others;
 		
 		
 		
-		process (clock, reset, program)
+		process (clock, reset)
 			begin
 			
 			
@@ -135,12 +143,11 @@ architecture arch of TheSimpleComputer is
 					
 					when reset_vsc =>
 						
-						PC 	<= "00000000";
-						AC  <= "00000000";
+						PC 		<= "00000";
+						AC  	<= "00000000";
+						MW 		<= '0';
 						
-						-- MW <= '0';
-						
-						state <= fetch;
+						state 	<= fetch;
 					
 					
 					
@@ -152,8 +159,8 @@ architecture arch of TheSimpleComputer is
 					
 					when fetch =>
 						
-						-- MW <= '0'
-						IR 	<= MDR;
+						MW 		<= '0';
+						IR 		<= MDR;
 						
 					
 					
@@ -256,7 +263,7 @@ architecture arch of TheSimpleComputer is
 					--
 					when exec_shift =>
 					
-						AC 		<= AC_SHIFTED;
+						AC 		<= AC_SHIFT;
 						state 	<= fetch;
 						
 					
@@ -270,6 +277,18 @@ architecture arch of TheSimpleComputer is
 						
 						
 						state 	<= fetch;
+					
+					
+					-- 
+					-- Catch invalid states.
+					-- 
+					-- We shouldnt be able to reach this state, since we have
+					-- considered all possible options. Nevertheless we 
+					-- retain this here for safety.
+					--
+					when others =>
+						state <= fetch;
+				
 				
 				-- end case state is...
 				end case;

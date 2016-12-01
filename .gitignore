@@ -58,3 +58,5 @@ TheSimpleComputer/db/FPGASimpleComputer.hier_info
 *.tdb
 TheSimpleComputer/db/FPGASimpleComputer.lpc.txt
 TheSimpleComputer/incremental_db/README
+*.atm
+TheSimpleComputer/db/TheSimpleComputer.smp_dump.txt
