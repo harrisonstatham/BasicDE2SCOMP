@@ -74,10 +74,19 @@ architecture arch of TheSimpleComputer is
 	signal PC 		: std_logic_vector(4 downto 0);
 	signal AC 		: std_logic_vector(7 downto 0);
 	signal AC_SHIFT : std_logic_vector(7 downto 0);
+	
+	
 	signal MW 		: std_logic;
 	
 	
-	
+	-- 
+	-- Stack
+	--
+	-- Stack operations.
+	--
+	signal SMW 		: std_logic;
+	signal SMAR 	: std_logic_vector(4 downto 0);
+	signal SMDR 	: std_logic_vector(7 downto 0);
 	
 	
 	
@@ -112,6 +121,11 @@ architecture arch of TheSimpleComputer is
 		with state select MAR <=
 			PC 				when fetch,
 			IR(4 downto 0) 	when others;
+		
+		
+		with state select SMAR <=
+			
+		
 		
 		
 		
@@ -275,6 +289,21 @@ architecture arch of TheSimpleComputer is
 					
 					when exec_stack =>
 						
+						--
+						-- Push
+						--
+						-- Increment the stack pointer.
+						-- Push the value in the accumulator onto the stack.
+						-- 
+						--
+						
+						if( IR(4) = '1' ) then
+							
+							
+							
+						else
+				
+						end if;
 						
 						state 	<= fetch;
 					
