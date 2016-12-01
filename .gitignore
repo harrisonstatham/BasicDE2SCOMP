@@ -48,3 +48,13 @@ FPGASimpleComputer/db/FPGASimpleComputer.hier_info
 *.bpm
 FPGASimpleComputer/db/FPGASimpleComputer.lpc.txt
 FPGASimpleComputer/db/FPGASimpleComputer.smp_dump.txt
+TheSimpleComputer/incremental_db/compiled_partitions/FPGASimpleComputer.root_partition.map.dpi
+*.db_info
+TheSimpleComputer/FPGASimpleComputer.sof
+*.dat
+TheSimpleComputer/db/FPGASimpleComputer.smart_action.txt
+*.hif
+TheSimpleComputer/db/FPGASimpleComputer.hier_info
+*.tdb
+TheSimpleComputer/db/FPGASimpleComputer.lpc.txt
+TheSimpleComputer/incremental_db/README
