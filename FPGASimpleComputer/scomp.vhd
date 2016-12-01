@@ -12,11 +12,7 @@ ENTITY SCOMP IS
   PORT(
     CLOCK    : IN    STD_LOGIC;
 	RESETN   : IN    STD_LOGIC;
-	PCINT    : IN    STD_LOGIC_VECTOR( 3 DOWNTO 0);
-	IO_WRITE : OUT   STD_LOGIC;
-	IO_CYCLE : OUT   STD_LOGIC;
-	IO_ADDR  : OUT   STD_LOGIC_VECTOR( 7 DOWNTO 0);
-	IO_DATA  : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+	PCINT    : IN    STD_LOGIC_VECTOR( 3 DOWNTO 0)
   );
 END SCOMP;
 
@@ -49,8 +45,7 @@ ARCHITECTURE a OF SCOMP IS
 		EX_IN,
 		EX_OUT,
 		EX_OUT2,
-		EX_LOADI,
-		EX_RETI,
+
 
 		EX_MOVR,
 		EX_ADDR,
@@ -70,7 +65,7 @@ ARCHITECTURE a OF SCOMP IS
 
 	SIGNAL STATE        : STATE_TYPE;
 	SIGNAL PC_STACK     : STACK_TYPE;
-	SIGNAL IO_IN        : STD_LOGIC_VECTOR(15 DOWNTO 0);
+
 	SIGNAL AC           : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL AC_SAVED     : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL AC_SHIFTED   : STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -80,13 +75,7 @@ ARCHITECTURE a OF SCOMP IS
 	SIGNAL PC_SAVED     : STD_LOGIC_VECTOR(10 DOWNTO 0);
 	SIGNAL MEM_ADDR     : STD_LOGIC_VECTOR(10 DOWNTO 0);
 	SIGNAL MW           : STD_LOGIC;
-	SIGNAL IO_WRITE_INT : STD_LOGIC;
-	SIGNAL GIE          : STD_LOGIC;
-	SIGNAL IIE      	: STD_LOGIC_VECTOR( 3 DOWNTO 0);
-	SIGNAL INT_REQ      : STD_LOGIC_VECTOR( 3 DOWNTO 0);
-	SIGNAL INT_REQ_SYNC : STD_LOGIC_VECTOR( 3 DOWNTO 0); -- registered version of INT_REQ
-	SIGNAL INT_ACK      : STD_LOGIC_VECTOR( 3 DOWNTO 0);
-	SIGNAL IN_HOLD      : STD_LOGIC;
+
 
 
   BEGIN
@@ -132,30 +121,30 @@ ARCHITECTURE a OF SCOMP IS
 	);
 
 	-- Use LPM function to drive I/O bus
-	IO_BUS: LPM_BUSTRI
-	GENERIC MAP (
-		lpm_width => 16
-	)
-	PORT MAP (
-		data     => AC,
-		enabledt => IO_WRITE_INT,
-		tridata  => IO_DATA
-	);
+	--IO_BUS: LPM_BUSTRI
+	--GENERIC MAP (
+	--	lpm_width => 16
+	--)
+	--PORT MAP (
+	--	data     => AC,
+	--	enabledt => IO_WRITE_INT,
+	--	tridata  => IO_DATA
+	--);
 	
 	
 	
-    IO_ADDR  <= IR(7 DOWNTO 0);
+    --IO_ADDR  <= IR(7 DOWNTO 0);
 
 	WITH STATE SELECT MEM_ADDR <=
 		PC WHEN FETCH,
 		IR(10 DOWNTO 0) WHEN OTHERS;
 
-	WITH STATE SELECT IO_CYCLE <=
-		'1' WHEN EX_IN,
-		'1' WHEN EX_OUT2,
-		'0' WHEN OTHERS;
+	--WITH STATE SELECT IO_CYCLE <=
+	--	'1' WHEN EX_IN,
+	--	'1' WHEN EX_OUT2,
+	--	'0' WHEN OTHERS;
 
-	IO_WRITE <= IO_WRITE_INT;
+	--IO_WRITE <= IO_WRITE_INT;
 
 
     PROCESS (CLOCK, RESETN)
@@ -169,42 +158,13 @@ ARCHITECTURE a OF SCOMP IS
 					MW        <= '0';          -- Clear memory write flag
 					PC        <= "00000000000"; -- Reset PC to the beginning of memory, address 0x000
 					AC        <= x"0000";      -- Clear AC register
-					IO_WRITE_INT <= '0';
-					GIE       <= '1';          -- Enable interrupts
-					IIE       <= "0000";       -- Mask all interrupts
+					--IO_WRITE_INT <= '0';
 					STATE     <= FETCH;
-					IN_HOLD   <= '0';
-					INT_REQ_SYNC <= "0000";
 
 				WHEN FETCH =>
 					MW    <= '0';       -- Clear memory write flag
 					IR    <= MDR;       -- Latch instruction into the IR
-					IO_WRITE_INT <= '0';       -- Lower IO_WRITE after an OUT
-					-- Interrupt Control
-					IF (GIE = '1') AND  -- If Global Interrupt Enable set and...
-					  (INT_REQ_SYNC /= "0000") THEN -- ...an interrupt is pending
-						IF INT_REQ_SYNC(0) = '1' THEN   -- Got interrupt on PCINT0
-							INT_ACK <= "0001";     -- Acknowledge the interrupt
-							PC <= "00000000001";    -- Redirect execution
-						ELSIF INT_REQ_SYNC(1) = '1' THEN
-							INT_ACK <= "0010";     -- repeat for other pins
-							PC <= "00000000010";
-						ELSIF INT_REQ_SYNC(2) = '1' THEN
-							INT_ACK <= "0100";
-							PC <= "00000000011";
-						ELSIF INT_REQ_SYNC(3) = '1' THEN
-							INT_ACK <= "1000";
-							PC <= "00000000100";
-						END IF;
-						GIE <= '0';            -- Disable interrupts while in ISR
-						AC_SAVED <= AC;        -- Save AC
-						PC_SAVED <= PC;        -- Save PC
-						STATE <= FETCH;        -- Repeat FETCH with new PC
-					ELSE -- either no interrupt or interrupts disabled
-						PC        <= PC + 1;   -- Increment PC to next instruction address
-						STATE     <= DECODE;
-						INT_ACK   <= "0000";   -- Clear any interrupt acknowledge
-					END IF;
+					--IO_WRITE_INT <= '0';       -- Lower IO_WRITE after an OUT
 
 				WHEN DECODE =>
 					CASE IR(15 downto 11) IS
@@ -244,22 +204,7 @@ ARCHITECTURE a OF SCOMP IS
 							STATE <= EX_CALL;
 						WHEN "10001" =>       -- RETURN
 							STATE <= EX_RETURN;
-						WHEN "10010" =>       -- IN
-							STATE <= EX_IN;
-						WHEN "10011" =>       -- OUT
-							STATE <= EX_OUT;
-							IO_WRITE_INT <= '1'; -- raise IO_WRITE
-						WHEN "10100" =>       -- CLI
-							IIE <= IIE AND NOT(IR(3 DOWNTO 0));  -- disable indicated interrupts
-							STATE <= FETCH;
-						WHEN "10101" =>       -- SEI
-							IIE <= IIE OR IR(3 DOWNTO 0);  -- enable indicated interrupts
-							STATE <= FETCH;
-						WHEN "10110" =>       -- RETI
-							STATE <= EX_RETI;
-						WHEN "10111" =>       -- LOADI
-							STATE <= EX_LOADI;
-
+						
 
 						-- 
 						-- Register-to-Register Operations
@@ -390,32 +335,6 @@ ARCHITECTURE a OF SCOMP IS
 					PC          <= PC_STACK(0);
 					STATE       <= FETCH;
 
-				WHEN EX_IN =>
-					IF IN_HOLD = '0' THEN
-						AC    <= IO_DATA;
-						IN_HOLD <= '1';
-					ELSE
-						STATE <= FETCH;
-						IN_HOLD <= '0';
-					END IF;
-
-				WHEN EX_OUT =>
-					STATE <= EX_OUT2;
-
-				WHEN EX_OUT2 =>
-					STATE <= FETCH;
-
-				WHEN EX_LOADI =>
-					AC    <= (IR(10) & IR(10) & IR(10) &
-					 IR(10) & IR(10) & IR(10 DOWNTO 0));
-					STATE <= FETCH;
-
-				WHEN EX_RETI =>
-					GIE   <= '1';      -- re-enable interrupts
-					PC    <= PC_SAVED; -- restore saved registers
-					AC    <= AC_SAVED;
-					STATE <= FETCH;
-
 
 				--
 				-- Register-to-Register Operations
@@ -442,12 +361,6 @@ ARCHITECTURE a OF SCOMP IS
 					
 					STATE 	<= FETCH;
 
-				
-				-- ADDIR
-				-- Add Immediate Register 
-				-- 
-				-- Treat the bits in IR(4 downto 0) as an immediate value.
-				--
 
 				WHEN EX_ADDIR =>
 
@@ -475,44 +388,11 @@ ARCHITECTURE a OF SCOMP IS
 					STATE <= FETCH;
 
 
-				WHEN EX_LT =>
-
-					
-
-					STATE <= FETCH;
-
-
-				WHEN EX_GT =>
-
-					
-					STATE <= FETCH;
-
-
 
 				WHEN OTHERS =>
 					STATE <= FETCH;          -- If an invalid state is reached, return to FETCH
 					
 			END CASE;
-			INT_REQ_SYNC <= INT_REQ;  -- register interrupt requests to SCOMP's clock.
 		END IF;
-      END PROCESS;
-      
-      -- This process monitors the external interrupt pins, setting
-	-- some flags if a rising edge is detected, and clearing flags
-	-- once the interrupt is acknowledged.
-	PROCESS(RESETN, PCINT, INT_ACK, IIE)
-	BEGIN
-		IF (RESETN = '0') THEN
-			INT_REQ <= "0000";  -- clear all interrupts on reset
-		ELSE
-			FOR i IN 0 TO 3 LOOP -- for each of the 4 interrupt pins
-				IF (INT_ACK(i) = '1') OR (IIE(i) = '0') THEN
-					INT_REQ(i) <= '0';   -- if acknowledged or masked, clear interrupt
-				ELSIF RISING_EDGE(PCINT(i)) THEN
-					INT_REQ(i) <= '1';   -- if rising edge on PCINT, request interrupt
-				END IF;
-			END LOOP;
-		END IF;
-	END PROCESS;
-      
+      END PROCESS;   
   END a;
